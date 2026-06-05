@@ -21,7 +21,8 @@ EMAIL_PASSWORD = "exum hoyz gcvy nsli"
 
 EMAIL_TO = [
     "danimorav05@gmail.com",
-    "karenselennemoreno@gmail.com"
+    "karenselennemoreno@gmail.com",
+    "cjob.9410@gmail.com"
 ]
 
 URL_SECOP1 = "https://www.datos.gov.co/resource/f789-7hwg.json"
