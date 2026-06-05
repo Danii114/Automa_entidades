@@ -22,13 +22,17 @@ EMAIL_PASSWORD = "exum hoyz gcvy nsli"
 EMAIL_TO = [
     "danimorav05@gmail.com",
     "karenselennemoreno@gmail.com",
-    "cjob.9410@gmail.com"
+    "cjob.9410@gmail.com",
+        "cortes.sophiap@gmail.com",
+    "yesicagil96@gmail.com",
+    "maialeja.96@gmail.com",
+    "jh.aristizabal10@outlook.com",
+    "jeremy.sanchezp1@gmail.com"
 ]
-
 URL_SECOP1 = "https://www.datos.gov.co/resource/f789-7hwg.json"
 URL_SECOP2 = "https://www.datos.gov.co/resource/jbjy-vk9h.json"
 
-DIAS_ATRAS = 15
+DIAS_ATRAS = 8
 
 fecha_fin = date.today()
 fecha_inicio = fecha_fin - timedelta(days=DIAS_ATRAS)
