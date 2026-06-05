@@ -27,7 +27,7 @@ EMAIL_TO = [
 URL_SECOP1 = "https://www.datos.gov.co/resource/f789-7hwg.json"
 URL_SECOP2 = "https://www.datos.gov.co/resource/jbjy-vk9h.json"
 
-DIAS_ATRAS = 154
+DIAS_ATRAS = 15
 
 fecha_fin = date.today()
 fecha_inicio = fecha_fin - timedelta(days=DIAS_ATRAS)
@@ -158,6 +158,7 @@ SELECT
     estado_contrato,
     duraci_n_del_contrato,
     modalidad_de_contratacion,
+    proveedor_adjudicado,
     urlproceso
 WHERE nit_entidad IN ({NITS_SQL_SECOP2})
 AND fecha_de_firma >= '{fecha_inicio}T00:00:00'
@@ -194,6 +195,8 @@ COLS_S2 = [
     "estado_contrato",
     "duraci_n_del_contrato",
     "modalidad_de_contratacion",
+    "proveedor_adjudicado",
+    "valor_diario_contrato_cop",
     "urlproceso"
 ]
 
@@ -220,6 +223,44 @@ df_secop2["valor_del_contrato"] = pd.to_numeric(
 df_secop2["cuantia_proceso"] = df_secop2["valor_del_contrato"]
 df_secop2["detalle_del_objeto_a_contratar"] = df_secop2.get("descripcion_del_proceso", "")
 
+#agregando columnas 
+# =========================================================
+# VALOR DIARIO DEL CONTRATO - SECOP II
+# La columna duraci_n_del_contrato ya viene en días
+# =========================================================
+
+# Extraer el número de días desde textos como "207 Día(s)"
+df_secop2["duracion_contrato_dias"] = (
+    df_secop2["duraci_n_del_contrato"]
+    .astype(str)
+    .str.extract(r"(\d+)")
+    .astype(float)
+)
+
+# Evitar división por cero
+df_secop2.loc[
+    df_secop2["duracion_contrato_dias"] <= 0,
+    "duracion_contrato_dias"
+] = np.nan
+
+# Calcular valor diario en pesos colombianos
+df_secop2["valor_diario_contrato_cop"] = (
+    df_secop2["valor_del_contrato"] /
+    df_secop2["duracion_contrato_dias"]
+).round(2)
+
+# Verificación rápida
+print("\nVerificación SECOP II valor diario:")
+print(
+    df_secop2[
+        [
+            "duraci_n_del_contrato",
+            "duracion_contrato_dias",
+            "valor_del_contrato",
+            "valor_diario_contrato_cop"
+        ]
+    ].head(10)
+)
 # =========================================================
 # EXCEL FORMATEADO
 # =========================================================
@@ -238,7 +279,7 @@ ANCHOS = {
     "nit_de_la_entidad": 18,
     "nit_entidad": 18,
     "detalle_del_objeto_a_contratar": 55,
-    "descripcion_del_proceso": 55,
+    "descripcion_del_proceso": 65,
     "modalidad_de_contratacion": 25,
     "cuantia_proceso": 18,
     "valor_del_contrato": 18,
@@ -248,7 +289,9 @@ ANCHOS = {
     "estado_del_proceso": 18,
     "estado_contrato": 18,
     "duraci_n_del_contrato": 18,
+    "proveedor_adjudicado": 18,
     "id_contrato": 20,
+    "valor_diario_contrato_cop": 20,
     "ruta_proceso_en_secop_i": 18,
     "urlproceso": 18,
 }
@@ -452,7 +495,7 @@ resumen_html = f"""
 <tr>
 <td style="background:#1F4E79;padding:20px 24px;">
   <p style="margin:0;font-size:19px;font-weight:700;color:#fff;">
-    &#128204;&nbsp; Seguimiento SECOP &#8212; Entidades priorizadas
+    &#128204;&nbsp; SECOP &#8212; I-II
   </p>
   <p style="margin:4px 0 0;font-size:12px;color:#93c5fd;">
     Periodo: {fecha_inicio.strftime('%Y-%m-%d')} &rarr; {fecha_str}
@@ -512,7 +555,7 @@ resumen_html = f"""
 print("\n📧 Enviando correo...")
 
 msg = MIMEMultipart("alternative")
-msg["Subject"] = f"SECOP entidades priorizadas · {fecha_str} · {total_global} registros (I:{t1} / II:{t2})"
+msg["Subject"] = f"SECOP I-II entidades · {fecha_str} · {total_global} registros (I:{t1} / II:{t2})"
 msg["From"] = EMAIL_SENDER
 msg["To"] = ", ".join(EMAIL_TO)
 
