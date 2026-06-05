@@ -2,8 +2,7 @@ name: SECOP Entidades
 
 on:
   schedule:
-    # 7:00 AM Colombia (UTC-5)
-    - cron: '1 2 * * *'
+    - cron: '0 12 * * *'
 
   workflow_dispatch:
 
