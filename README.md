@@ -1,1 +1,0 @@
-# Automa_entidades
